@@ -1907,7 +1907,7 @@ function setupRelationships(store, record, data) {
       }
       relationship.setRecord(value);
     } else if (kind === 'hasMany' && value) {
-     relationship.updateRecordsFromServer(value);
+     relationship.updateRecordsFromAdapter(value);
     }
   });
 }
