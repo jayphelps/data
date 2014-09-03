@@ -12,8 +12,6 @@ import {
 import { singularize } from "ember-inflector/system/string";
 
 import {
-  PromiseArray,
-  PromiseObject,
   promiseArray,
   promiseObject
 } from "ember-data/system/promise_proxies";
@@ -360,7 +358,7 @@ Store = Ember.Object.extend({
 
     ---
 
-    You can optionally preload specific attributes and relationships that you know of
+    You can optionally `preload` specific attributes and relationships that you know of
     by passing them as the third argument to find.
 
     For example, if your Ember route looks like `/posts/1/comments/2` and your API route
@@ -411,6 +409,7 @@ Store = Ember.Object.extend({
     @method find
     @param {String or subclass of DS.Model} type
     @param {Object|String|Integer|null} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
   find: function(type, id, preload) {
@@ -436,6 +435,7 @@ Store = Ember.Object.extend({
     @private
     @param {String or subclass of DS.Model} type
     @param {String|Integer} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
   findById: function(typeName, id, preload) {
@@ -475,7 +475,6 @@ Store = Ember.Object.extend({
   */
   findByIds: function(type, ids) {
     var store = this;
-    var promiseLabel = "DS: Store#findByIds " + type;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
       return store.findById(type, id);
@@ -546,7 +545,6 @@ Store = Ember.Object.extend({
     var adapter = store.adapterFor(type);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
     var records = Ember.A(recordResolverPairs).mapBy('record');
-    var resolvers = Ember.A(recordResolverPairs).mapBy('resolver');
 
     function _fetchRecord(recordResolverPair) {
       recordResolverPair.resolver.resolve(store.fetchRecord(recordResolverPair.record));
@@ -1289,8 +1287,8 @@ Store = Ember.Object.extend({
     // _partial is an internal param used by `update`.
     // If passed, it means that the data should be
     // merged into the existing data, not replace it.
-
-    Ember.assert("You must include an `id` for " + typeName+ " in a hash passed to `push`", data.id != null);
+    Ember.assert("Expected an object as `data` in a call to push for " + typeName + " , but was " + data, Ember.typeOf(data) === 'object');
+    Ember.assert("You must include an `id` for " + typeName + " in an object passed to `push`", data.id != null);
 
     var type = this.modelFor(typeName);
 
@@ -1592,7 +1590,6 @@ Store = Ember.Object.extend({
   willDestroy: function() {
     var typeMaps = this.typeMaps;
     var keys = Ember.keys(typeMaps);
-    var store = this;
 
     var types = map(keys, byType);
 
@@ -1668,29 +1665,8 @@ function deserializeRecordIds(store, data, key, relationship, ids) {
     deserializeRecordId(store, ids, i, relationship, ids[i]);
   }
 }
-
-// If there are any unsaved records that are in a hasMany they won't be
-// in the payload, so add them back in manually.
-function addUnsavedRecords(record, key, data) {
-  if(record) {
-    var unsavedRecords = uniqById(Ember.A(data), record.get(key).filterBy('isNew'));
-    Ember.A(data).pushObjects(unsavedRecords);
-  }
-}
-
-function uniqById(data, records) {
-  var currentIds = data.mapBy("id");
-  return records.reject(function(record) {
-    return Ember.A(currentIds).contains(record.id);
-  });
-}
-
 // Delegation to the adapter and promise management
 
-
-function isThenable(object) {
-  return object && typeof object.then === 'function';
-}
 
 function serializerFor(container, type, defaultSerializer) {
   return container.lookup('serializer:'+type) ||
@@ -1775,8 +1751,6 @@ function _findMany(adapter, store, type, ids, records) {
   if (promise === undefined) {
     throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
   }
-
-  var guardedPromise;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));

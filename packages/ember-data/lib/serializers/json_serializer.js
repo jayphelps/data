@@ -1,5 +1,4 @@
 var get = Ember.get;
-var set = Ember.set;
 var isNone = Ember.isNone;
 var map = Ember.ArrayPolyfills.map;
 var merge = Ember.merge;
@@ -109,7 +108,7 @@ export default Ember.Object.extend({
    @return {Object} data The transformed data object
   */
   applyTransforms: function(type, data) {
-    type.eachTransformedAttribute(function(key, type) {
+    type.eachTransformedAttribute(function applyTransform(key, type) {
       if (!data.hasOwnProperty(key)) { return; }
 
       var transform = this.transformFor(type);
@@ -195,7 +194,7 @@ export default Ember.Object.extend({
     @private
   */
   normalizeAttributes: function(type, hash) {
-    var payloadKey, key;
+    var payloadKey;
 
     if (this.keyForAttribute) {
       type.eachAttribute(function(key) {
@@ -214,7 +213,7 @@ export default Ember.Object.extend({
     @private
   */
   normalizeRelationships: function(type, hash) {
-    var payloadKey, key;
+    var payloadKey;
 
     if (this.keyForRelationship) {
       type.eachRelationship(function(key, relationship) {

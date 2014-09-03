@@ -4,11 +4,6 @@
 
 import { Model } from "ember-data/system/model";
 
-var get = Ember.get;
-var set = Ember.set;
-var setProperties = Ember.setProperties;
-var map = Ember.EnumerableUtils.map;
-
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
   relationships on a [DS.Model](/api/data/classes/DS.Model.html).

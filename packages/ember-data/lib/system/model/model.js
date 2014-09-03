@@ -12,7 +12,6 @@ var set = Ember.set;
 var merge = Ember.merge;
 var Promise = Ember.RSVP.Promise;
 var forEach = Ember.ArrayPolyfills.forEach;
-var isNone = Ember.isNone;
 
 var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
