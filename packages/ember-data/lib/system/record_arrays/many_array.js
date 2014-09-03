@@ -5,11 +5,6 @@ import RecordArray from "ember-data/system/record_arrays/record_array";
 */
 
 var get = Ember.get, set = Ember.set;
-var map = Ember.EnumerableUtils.map;
-
-function sync(change) {
-  change.sync();
-}
 
 /**
   A `ManyArray` is a `RecordArray` that represents the contents of a has-many
@@ -140,7 +135,6 @@ export default RecordArray.extend({
     @return {DS.Model} record
   */
   createRecord: function(hash) {
-    var owner = get(this, 'owner');
     var store = get(this, 'store');
     var type = get(this, 'type');
     var record;

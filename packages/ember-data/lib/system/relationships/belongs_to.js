@@ -1,8 +1,3 @@
-var get = Ember.get;
-var set = Ember.set;
-var isNone = Ember.isNone;
-var Promise = Ember.RSVP.Promise;
-
 import { Model } from 'ember-data/system/model';
 
 
